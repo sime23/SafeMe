@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: gps-tracking-backend
+    env: node
+    plan: free
+    buildCommand: npm install && npx prisma db push && npm run prisma:seed && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: DEFAULT_DEVICE_TOKEN
+        value: cd_sim_181126_WSOLo6

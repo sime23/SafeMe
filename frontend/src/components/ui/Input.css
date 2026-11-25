@@ -1,0 +1,64 @@
+.ui-input-wrapper {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-subtle);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+}
+
+.ui-input-wrapper:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 1px var(--border-focus);
+}
+
+.ui-input-sm {
+  height: var(--control-height-sm);
+  padding: 0 var(--space-2);
+  gap: var(--space-1-5);
+}
+
+.ui-input-md {
+  height: var(--control-height-md);
+  padding: 0 var(--space-2-5);
+  gap: var(--space-2);
+}
+
+.ui-input-icon {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.ui-input-field {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.ui-input-field::placeholder {
+  color: var(--text-disabled);
+}
+
+.ui-input-clear-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: var(--radius-xs);
+  transition: color 0.15s ease;
+}
+
+.ui-input-clear-btn:hover {
+  color: var(--text-primary);
+}

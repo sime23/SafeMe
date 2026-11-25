@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Device {
+  id          Int         @id @default(autoincrement())
+  deviceId    String      @unique
+  name        String?
+  apiToken    String      @unique
+  isActive    Boolean     @default(true)
+  lastSeen    DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  telemetries Telemetry[]
+
+  @@map("devices")
+}
+
+model Telemetry {
+  id           Int      @id @default(autoincrement())
+  deviceId     String
+  latitude     Float
+  longitude    Float
+  altitude     Float?
+  speed        Float?
+  heading      Float?
+  satellites   Int?
+  hdop         Float?
+  gpsTimestamp DateTime
+  receivedAt   DateTime @default(now())
+
+  device       Device?  @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
+
+  @@index([deviceId, gpsTimestamp])
+  @@index([deviceId, receivedAt])
+  @@map("telemetries")
+}
