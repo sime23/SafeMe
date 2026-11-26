@@ -8,9 +8,20 @@ import type {
   TelemetryRecord,
 } from '../types/tracking';
 
-// Base URL loaded from Vite environment variables (fallback to localhost:5000)
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1/tracking';
+function normalizeApiBaseUrl(rawUrl?: string): string {
+  if (!rawUrl || !rawUrl.trim()) {
+    return 'http://localhost:5000/api/v1/tracking';
+  }
+  const trimmed = rawUrl.trim().replace(/\/+$/, '');
+  // If the user entered the root domain without /api/v1/tracking, auto-append it
+  if (!trimmed.includes('/api/v1/tracking')) {
+    return `${trimmed}/api/v1/tracking`;
+  }
+  return trimmed;
+}
+
+// Base URL loaded from Vite environment variables with automatic path normalization
+const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

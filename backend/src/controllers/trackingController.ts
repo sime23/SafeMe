@@ -93,9 +93,10 @@ export const getLatestTelemetry = async (
     });
 
     if (!latest) {
-      return res.status(404).json({
-        success: false,
-        error: `No telemetry records found for device '${deviceId}'`,
+      return res.status(200).json({
+        success: true,
+        message: `No telemetry records found for device '${deviceId}' yet`,
+        data: null,
       });
     }
 
@@ -181,7 +182,7 @@ export const getDeviceStatus = async (
   try {
     const { deviceId } = req.params;
 
-    const device = await prisma.device.findUnique({
+    let device = await prisma.device.findUnique({
       where: { deviceId },
       include: {
         telemetries: {
@@ -192,9 +193,24 @@ export const getDeviceStatus = async (
     });
 
     if (!device) {
-      return res.status(404).json({
-        success: false,
-        error: `Device '${deviceId}' not found`,
+      // Auto-provision default tracker if requested
+      const defaultToken =
+        process.env.DEFAULT_DEVICE_TOKEN || 'cd_sim_181126_WSOLo6';
+      device = await prisma.device.upsert({
+        where: { deviceId },
+        update: { isActive: true },
+        create: {
+          deviceId,
+          name: 'ESP32 DevKit - NEO-7M Tracker',
+          apiToken: defaultToken,
+          isActive: true,
+        },
+        include: {
+          telemetries: {
+            orderBy: { gpsTimestamp: 'desc' },
+            take: 1,
+          },
+        },
       });
     }
 
