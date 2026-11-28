@@ -43,25 +43,31 @@ export const DeviceStatusCard: React.FC<DeviceStatusCardProps> = memo(
     const lastTimestamp = latestRecord?.receivedAt || statusData?.lastSeen;
     let ageSeconds: number | null = null;
 
-    if (!hasApiError && statusData && lastTimestamp) {
-      ageSeconds = Math.max(
-        0,
-        Math.floor((Date.now() - new Date(lastTimestamp).getTime()) / 1000)
-      );
+    if (!hasApiError && statusData) {
+      if (lastTimestamp) {
+        ageSeconds = Math.max(
+          0,
+          Math.floor((Date.now() - new Date(lastTimestamp).getTime()) / 1000)
+        );
+      }
 
-      if (ageSeconds <= 75) {
+      // If backend reports isOnline: true, prioritize it over client-side clock skew
+      if (statusData.isOnline || (ageSeconds !== null && ageSeconds <= 75)) {
         statusLabel = 'Online (Live Cadence)';
         statusClass = 'state-online';
-        statusDesc = `Active transmission received ${ageSeconds}s ago`;
-      } else if (ageSeconds <= 300) {
+        const displaySecs = (ageSeconds !== null && ageSeconds <= 120) ? `${ageSeconds}s ago` : 'just now';
+        statusDesc = `Active transmission received (${displaySecs})`;
+      } else if (ageSeconds !== null && ageSeconds <= 300) {
         statusLabel = 'Stale Fix (Delayed)';
         statusClass = 'state-stale';
         statusDesc = `Last fix ${ageSeconds}s ago (> 75s window)`;
       } else {
         statusLabel = 'Offline';
         statusClass = 'state-offline';
-        const mins = Math.floor(ageSeconds / 60);
-        statusDesc = `No packet received for ${mins} minutes`;
+        const mins = ageSeconds !== null ? Math.floor(ageSeconds / 60) : 0;
+        statusDesc = (mins > 0 && mins < 1440)
+          ? `No packet received for ${mins} minutes`
+          : 'No recent telemetry recorded';
       }
     }
 
@@ -175,7 +181,7 @@ export const DeviceStatusCard: React.FC<DeviceStatusCardProps> = memo(
               </span>
             </div>
             <span className="health-desc">
-              <strong className="tabular-nums">{totalPersisted}</strong> records persisted in SQLite (dev.db)
+              <strong className="tabular-nums">{totalPersisted}</strong> records persisted in Cloud Database
             </span>
           </div>
 
